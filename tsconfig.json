@@ -12,12 +12,13 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "outDir": "dist",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "declaration": true
   },
   "include": ["./src"],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

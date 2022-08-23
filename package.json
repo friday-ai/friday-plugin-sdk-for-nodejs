@@ -1,9 +1,11 @@
 {
-  "name": "fpl-sdk",
-  "version": "1.0.0",
+  "name": "@friday-ai/fpl-sdk",
+  "version": "1.0.2",
   "description": "Friday's plugin service to expose a high level API for plugins developers",
-  "main": "src/main.ts",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "scripts": {
+    "prepublish": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

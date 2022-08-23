@@ -11,8 +11,7 @@ export default class Database {
 
   public async getData<T>(path: string, defaultValue?: T): Promise<T> {
     try {
-      const data = await this.database.getData(path);
-      return JSON.parse(data);
+      return await this.database.getData(path);
     } catch (e) {
       const err = e as DataError;
       if (err.message.includes("Can't find dataPath")) {
