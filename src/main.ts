@@ -5,6 +5,7 @@ import { MqttOptions, PluginMode } from './utils/interfaces';
 
 import Database from './api/database/database';
 import MqttClient from './api/mqtt/mqtt';
+import Server from './front/server';
 
 import {
   DeviceCapabilityRegisterType,
@@ -25,15 +26,19 @@ const defaultMqttOptions: MqttOptions = {
 export default class FPL {
   private readonly pluginName: string;
   private readonly pluginExec: any;
+  private readonly pluginWsClientHandler: any;
   private readonly mqttClient: MqttClient;
+  private server: Server;
 
   public database: Database;
 
-  constructor(pluginName: string, pluginExec: any) {
+  constructor(pluginName: string, pluginExec: any, pluginWsClientHandler: any) {
     this.pluginName = pluginName;
     this.pluginExec = pluginExec;
+    this.pluginWsClientHandler = pluginWsClientHandler;
     this.database = new Database(pluginName.toLowerCase());
     this.mqttClient = new MqttClient(this.pluginExec);
+    this.server = new Server('./src/client', this.pluginWsClientHandler);
 
     this.init();
   }
@@ -53,11 +58,16 @@ export default class FPL {
     });
 
     this.mqttClient.start(defaultMqttOptions);
+    this.server.start();
   }
 
   @Catch()
   public registerDevice(device: DeviceRegisterType): void {
     this.mqttClient.publish(`friday/master/device/register`, JSON.stringify(device));
+  }
+
+  public sendWsMsg(message = {}) {
+    this.server.ws.sendMessage(message);
   }
 }
 

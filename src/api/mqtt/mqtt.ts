@@ -22,7 +22,7 @@ export default class MqttClient {
     this.MqttClient.on('connect', () => {
       logger.info('Connected on mqtt broker');
 
-      this.MqttClient.subscribe('friday/satellite/9a5d34c4-d8cf-4093-94f2-142005ebfd66/#');
+      this.MqttClient.subscribe('friday/satellite/8487d42b-ccf5-426a-b1d4-b6a47bd901ca/#');
 
       this.MqttClient.on('message', (topic, message) => {
         logger.info(`Received message on topic ${topic}`);
