@@ -1,32 +1,37 @@
+import logger from '@friday-ai/logger';
+import { MqttOptions } from '@friday-ai/shared';
 import { Client, connect } from 'mqtt';
-import { MqttOptions } from '../../utils/interfaces';
-import { logger } from '../../main';
+
+import FPL from '../main';
 
 import handleMessage from './mqtt.handleMessage';
 
 const regexp = /plugin(.*)/;
 
 export default class MqttClient {
+  public fpl: FPL;
+
   public MqttClient!: Client;
-  public readonly pluginExec: any;
+
   public handleMessage = handleMessage;
 
-  constructor(pluginExec: any) {
-    this.pluginExec = pluginExec;
+  constructor(fpl: FPL) {
+    this.fpl = fpl;
   }
 
   public start(mqttOptions: MqttOptions): void {
-    // start the Mqtt server
+    // start the Mqtt client
     this.MqttClient = connect(mqttOptions);
 
     this.MqttClient.on('connect', () => {
-      logger.info('Connected on mqtt broker');
+      logger.info("Connected on Friday's broker");
 
-      this.MqttClient.subscribe('friday/satellite/8487d42b-ccf5-426a-b1d4-b6a47bd901ca/#');
+      this.MqttClient.subscribe(`friday/satellite/${this.fpl.pluginId}/#`);
 
       this.MqttClient.on('message', (topic, message) => {
-        logger.info(`Received message on topic ${topic}`);
-        logger.info(`Message: ${message.toString()}`);
+        // TODO: Debug mode
+        // logger.info(`Received message on topic ${topic}`);
+        // logger.info(`Message: ${message.toString()}`);
 
         const match = topic.match(regexp)?.[0] || '';
         this.handleMessage(match, message.toString());

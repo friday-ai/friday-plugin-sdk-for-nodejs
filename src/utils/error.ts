@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-len */
-import logger from './log';
+import logger from '@friday-ai/logger';
 
 //      ____                                        __                                          __     _     __
 //     / __ \  ___   _____  ____    _____  ____ _  / /_  ____    _____   _____         __  __  / /_   (_)   / /   _____
@@ -20,7 +21,7 @@ const Catch = () => (_: any, __: string, descriptor: PropertyDescriptor) => {
   const originalMethod = descriptor.value;
 
   // rewrite original method with custom wrapper
-  descriptor.value = function (...args: any[]) {
+  descriptor.value = function f(...args: any[]) {
     try {
       const result = originalMethod.apply(this, args);
 

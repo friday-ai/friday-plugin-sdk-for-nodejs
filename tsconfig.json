@@ -1,24 +1,31 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "esnext",
+    "target": "es6",
+    "module": "commonJS",
+    "moduleResolution": "node",
+    "outDir": "lib",
+    "sourceMap": true,
     "allowJs": false,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "noImplicitAny": true,
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "noImplicitReturns": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "Node",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "inlineSources": false,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedParameters": true,
+    "strict": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "outDir": "dist",
-    "baseUrl": "./src",
-    "declaration": true
+    "preserveWatchOutput": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false
   },
   "include": ["./src"],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "exclude": ["node_modules", "dist", "lib"]
 }

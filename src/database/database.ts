@@ -6,7 +6,7 @@ export default class Database {
   public database: JsonDB;
 
   constructor(name: string) {
-    this.database = new JsonDB(new Config(`./cache/user.${name}.database.json`, true, true, '/'));
+    this.database = new JsonDB(new Config(`./cache/plugin.${name}.database.json`, true, true, '/'));
   }
 
   public async getData<T>(path: string, defaultValue?: T): Promise<T> {
@@ -23,8 +23,6 @@ export default class Database {
   }
 
   public async insert(path: string, data: unknown, override = true): Promise<void> {
-    // Stringify data if it's an object or array,
-    // see : https://github.com/Belphemur/node-json-db/issues/460
-    await this.database.push(path, JSON.stringify(data), override);
+    await this.database.push(path, data, override);
   }
 }

@@ -1,12 +1,13 @@
 import WebSocket from 'ws';
+import FPL from '../main';
 
 export default class WebsocketServer {
   public wss: WebSocket.Server;
-  public pluginWsHandler: any;
+  public fpl: FPL;
 
-  constructor(wss: WebSocket.Server, pluginWsHandler: any) {
+  constructor(wss: WebSocket.Server, fpl: FPL) {
     this.wss = wss;
-    this.pluginWsHandler = pluginWsHandler;
+    this.fpl = fpl;
   }
 
   start() {
@@ -25,6 +26,6 @@ export default class WebsocketServer {
 
   handleMessage(_ws: WebSocket, message: string) {
     const msg = JSON.parse(message.toString());
-    this.pluginWsHandler(msg);
+    this.fpl.emit('ws-message', msg);
   }
 }

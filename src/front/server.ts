@@ -1,22 +1,23 @@
+import logger from '@friday-ai/logger';
+import chokidar from 'chokidar';
 import compression from 'compression';
 import express from 'express';
-import chokidar from 'chokidar';
 import http from 'http';
 import WebSocket from 'ws';
-import logger from '../utils/log';
+import FPL from '../main';
 import WebsocketServer from './ws';
 
 export default class Server {
+  public fpl: FPL;
   private port: number;
-  private pluginWsClientHandler: any;
   private staticFiles: string;
 
   public ws!: WebsocketServer;
 
-  constructor(staticFiles: string, pluginWsClientHandler: any, port = 9595) {
+  constructor(fpl: FPL, staticFiles: string, port = 9595) {
+    this.fpl = fpl;
     this.staticFiles = staticFiles;
     this.port = port;
-    this.pluginWsClientHandler = pluginWsClientHandler;
   }
 
   start() {
@@ -33,7 +34,7 @@ export default class Server {
 
     // Initialize the WebSocket server instance
     const wss = new WebSocket.Server({ server });
-    this.ws = new WebsocketServer(wss, this.pluginWsClientHandler);
+    this.ws = new WebsocketServer(wss, this.fpl);
 
     // Start Websocket server
     this.ws.start();
@@ -44,7 +45,7 @@ export default class Server {
       persistent: true,
     });
 
-    // And send refresh to commmand to parent on change
+    // And send refresh commmand to parent on change
     watcher.on('change', (path: string) => {
       this.ws.sendMessage({ type: 'friday-refresh' });
       logger.info(`HMR update ${path}`);

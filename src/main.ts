@@ -1,21 +1,12 @@
-import consoleStamp from 'console-stamp';
-import logger from './utils/log';
+import logger from '@friday-ai/logger';
+import { MqttOptions, DeviceRegisterAttributes, TypedEventEmitter } from '@friday-ai/shared';
+
 import Catch from './utils/error';
-import { MqttOptions, PluginMode } from './utils/interfaces';
+import { FplEventCallbacks } from './utils/event';
 
-import Database from './api/database/database';
-import MqttClient from './api/mqtt/mqtt';
+import Database from './database/database';
+import MqttClient from './mqtt/mqtt';
 import Server from './front/server';
-
-import {
-  DeviceCapabilityRegisterType,
-  DeviceCapabilitySettingsRegisterType,
-  DeviceCapabilitySettingsSchema,
-  DeviceRegisterType,
-  DevicesActionsType,
-  DevicesCapabilityType,
-  DevicesType,
-} from './config/device';
 
 const defaultMqttOptions: MqttOptions = {
   port: 1883,
@@ -23,46 +14,40 @@ const defaultMqttOptions: MqttOptions = {
   protocol: 'mqtt',
 };
 
-export default class FPL {
+class FPL extends TypedEventEmitter<FplEventCallbacks> {
   private readonly pluginName: string;
-  private readonly pluginExec: any;
-  private readonly pluginWsClientHandler: any;
   private readonly mqttClient: MqttClient;
-  private server: Server;
+  private readonly server: Server;
+  public pluginId = '';
+  public satelliteId = '';
 
   public database: Database;
 
-  constructor(pluginName: string, pluginExec: any, pluginWsClientHandler: any) {
+  constructor(pluginName: string) {
+    super();
     this.pluginName = pluginName;
-    this.pluginExec = pluginExec;
-    this.pluginWsClientHandler = pluginWsClientHandler;
     this.database = new Database(pluginName.toLowerCase());
-    this.mqttClient = new MqttClient(this.pluginExec);
-    this.server = new Server('./src/client', this.pluginWsClientHandler);
+    this.mqttClient = new MqttClient(this);
+    this.server = new Server(this, './src/client');
 
     this.init();
   }
 
   @Catch()
   private async init(): Promise<void> {
-    consoleStamp(console, {
-      format: ':customDate().grey :customLabel.black.bgWhite',
-      tokens: {
-        customDate: () => {
-          return new Date().toISOString().slice(11, -1);
-        },
-        customLabel: () => {
-          return this.pluginName;
-        },
-      },
-    });
+    logger.init(this.pluginName);
+
+    this.pluginId = await this.database.getData<string>('/config/pluginId', 'null');
+    this.satelliteId = await this.database.getData<string>('/config/satelliteId', 'null');
 
     this.mqttClient.start(defaultMqttOptions);
     this.server.start();
   }
 
   @Catch()
-  public registerDevice(device: DeviceRegisterType): void {
+  public registerDevice(device: DeviceRegisterAttributes): void {
+    // Allawys set the pluginId
+    device.pluginId = this.pluginId;
     this.mqttClient.publish(`friday/master/device/register`, JSON.stringify(device));
   }
 
@@ -71,6 +56,8 @@ export default class FPL {
   }
 }
 
-export { logger, Catch, PluginMode, DevicesType, DevicesActionsType, DevicesCapabilityType };
-export type { DeviceCapabilitySettingsRegisterType, DeviceCapabilitySettingsSchema, DeviceRegisterType };
-export type { DeviceCapabilityRegisterType };
+export default FPL;
+
+export { logger, Catch };
+
+export * from '@friday-ai/shared';
